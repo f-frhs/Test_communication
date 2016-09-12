@@ -16,15 +16,24 @@ public class Server
 {
     public static void Main()
     {
-        //ListenするIPアドレス                                                            //ホスト名からIPアドレスを取得する時は、次のようにする
-        string ipString = "127.0.0.1";                                                    //string host = "localhost";
-        System.Net.IPAddress ipAdd = System.Net.IPAddress.Parse(ipString);                //System.Net.IPAddress ipAdd = System.Net.Dns.GetHostEntry(host).AddressList[0];
+        //ListenするIPアドレス
+        string ipString = "127.0.0.1";
+        System.Net.IPAddress ipAdd = System.Net.IPAddress.Parse(ipString);
+
+        //ホスト名からIPアドレスを取得する時は、次のようにする
+        //string host = "localhost";
+        //System.Net.IPAddress ipAdd =
+        //    System.Net.Dns.GetHostEntry(host).AddressList[0];
+        //.NET Framework 1.1以前では、以下のようにする
+        //System.Net.IPAddress ipAdd =
+        //    System.Net.Dns.Resolve(host).AddressList[0];
 
         //Listenするポート番号
         int port = 2001;
 
         //TcpListenerオブジェクトを作成する
-        System.Net.Sockets.TcpListener listener = new System.Net.Sockets.TcpListener(ipAdd, port);
+        System.Net.Sockets.TcpListener listener =
+            new System.Net.Sockets.TcpListener(ipAdd, port);
 
         //Listenを開始する
         listener.Start();
@@ -69,11 +78,9 @@ public class Server
             //まだ読み取れるデータがあるか、データの最後が\nでない時は、
             // 受信を続ける
         } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');
-
         //受信したデータを文字列に変換
         string resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
         ms.Close();
-
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
         Console.WriteLine(resMsg);
@@ -89,8 +96,6 @@ public class Server
             ns.Write(sendBytes, 0, sendBytes.Length);
             Console.WriteLine(sendMsg);
         }
-
-        //このList<int>を送信
 
         //閉じる
         ns.Close();

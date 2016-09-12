@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_communication", "Test_communication\Test_communication.csproj", "{748063FF-0C95-4086-AF17-A20027028127}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCommu(Server)", "Test_communication\TCommu(Server).csproj", "{748063FF-0C95-4086-AF17-A20027028127}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCommu(Client)", "Tcommu(Client)\TCommu(Client).csproj", "{56DF6BCB-61E5-461F-B1B6-0054BEB53175}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{748063FF-0C95-4086-AF17-A20027028127}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{748063FF-0C95-4086-AF17-A20027028127}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{748063FF-0C95-4086-AF17-A20027028127}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56DF6BCB-61E5-461F-B1B6-0054BEB53175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56DF6BCB-61E5-461F-B1B6-0054BEB53175}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56DF6BCB-61E5-461F-B1B6-0054BEB53175}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56DF6BCB-61E5-461F-B1B6-0054BEB53175}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
