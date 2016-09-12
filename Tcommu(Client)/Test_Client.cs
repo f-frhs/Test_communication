@@ -85,6 +85,8 @@ public class Client
              {
                  Console.WriteLine(s);
              }
+        //データをストリームへ取得
+        System.Net.Sockets.NetworkStream stream = tcp.GetStream();
 
         ns.Write(Gdata,0, greeting.Length);
         Console.WriteLine(Gdata);

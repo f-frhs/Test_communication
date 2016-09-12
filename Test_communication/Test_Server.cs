@@ -85,6 +85,7 @@ public class Server
         if (!disconnected)
         {
             //クライアントに送信する文字列を作成
+ //           double dresMsg = (resMsg.Length)*1.08; 
             string sendMsg = resMsg.Length.ToString();
             //文字列をByte型配列に変換
             byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
@@ -92,6 +93,9 @@ public class Server
             ns.Write(sendBytes, 0, sendBytes.Length);
             Console.WriteLine(sendMsg);
         };
+
+        //データをストリームへ取得
+        System.Net.Sockets.NetworkStream stream = client.GetStream();
 
         //データを受け取るbyte型変数を定義（例では１バイトずつ受け取る）
         byte[] getData = new byte[1];
@@ -102,10 +106,10 @@ public class Server
         //どれだけもらうかわからないので一時的に格納するリストを定義
         List<byte> bytelist = new List<byte>();
         //cntには受け取ったデータの長さが入る
-        while ((cnt = ns.Read(getData, 0, getData.Length)) > 0)
+        while ((cnt = stream.Read(getData, 0, getData.Length)) > 0)
         {
             //データをリストに追加していく
-            bytelist.Add(getData);
+            bytelist.Add(getData[0]);
         }
 
         //リストに入った分だけ配列を定義
