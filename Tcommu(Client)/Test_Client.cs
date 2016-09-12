@@ -71,6 +71,9 @@ public class Client
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
         Console.WriteLine(resMsg);
+        //データをストリームへ取得
+        System.Net.Sockets.NetworkStream stream = tcp.GetStream();
+
 
         // List<T>クラスのインスタンス化
         List<string> stringList = new List<string>();
@@ -81,15 +84,12 @@ public class Client
         greeting = stringList[0]; // キャスト不要
         byte[] Gdata = System.Text.Encoding.UTF8.GetBytes(greeting);
              // 各要素の列挙
-             foreach (string s in stringList)
+             foreach (string str in stringList)
              {
-                 Console.WriteLine(s);
+                 Console.WriteLine(str);
              }
-        //データをストリームへ取得
-        System.Net.Sockets.NetworkStream stream = tcp.GetStream();
+        ns.Write(Gdata,0, Gdata.Length);
 
-        ns.Write(Gdata,0, greeting.Length);
-        Console.WriteLine(Gdata);
 
         //閉じる
         ns.Close();
