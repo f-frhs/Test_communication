@@ -105,7 +105,7 @@ public class Server
         while ((cnt = ns.Read(getData, 0, getData.Length)) > 0)
         {
             //データをリストに追加していく
-            bytelist.Add(getData);
+            bytelist.Add(getData[0]);
         }
 
         //リストに入った分だけ配列を定義
