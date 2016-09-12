@@ -1,6 +1,7 @@
 ﻿// Test_Server.cs
 
 using System;
+using System.Collections.Generic;
 
 // ---流れ---
 // TcpListenerクラスのStartメソッドによりListen（監視）を開始し、クライアントからの接続要求を待機します
@@ -32,20 +33,15 @@ public class Server
         int port = 2001;
 
         //TcpListenerオブジェクトを作成する
-        System.Net.Sockets.TcpListener listener =
-            new System.Net.Sockets.TcpListener(ipAdd, port);
+        System.Net.Sockets.TcpListener listener = new System.Net.Sockets.TcpListener(ipAdd, port);
 
         //Listenを開始する
         listener.Start();
-        Console.WriteLine("Listenを開始しました({0}:{1})。",
-            ((System.Net.IPEndPoint)listener.LocalEndpoint).Address,
-            ((System.Net.IPEndPoint)listener.LocalEndpoint).Port);
+        Console.WriteLine("Listenを開始しました({0}:{1})。", ((System.Net.IPEndPoint)listener.LocalEndpoint).Address,((System.Net.IPEndPoint)listener.LocalEndpoint).Port);
 
         //接続要求があったら受け入れる
         System.Net.Sockets.TcpClient client = listener.AcceptTcpClient();
-        Console.WriteLine("クライアント({0}:{1})と接続しました。",
-            ((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Address,
-            ((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Port);
+        Console.WriteLine("クライアント({0}:{1})と接続しました。",((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Address, ((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Port);
 
         //NetworkStreamを取得
         System.Net.Sockets.NetworkStream ns = client.GetStream();
@@ -85,9 +81,9 @@ public class Server
         resMsg = resMsg.TrimEnd('\n');
         Console.WriteLine(resMsg);
 
+        //クライアントにデータを送信する
         if (!disconnected)
         {
-            //クライアントにデータを送信する
             //クライアントに送信する文字列を作成
             string sendMsg = resMsg.Length.ToString();
             //文字列をByte型配列に変換
@@ -95,7 +91,34 @@ public class Server
             //データを送信する
             ns.Write(sendBytes, 0, sendBytes.Length);
             Console.WriteLine(sendMsg);
+        };
+
+        //データを受け取るbyte型変数を定義（例では１バイトずつ受け取る）
+        byte[] getData = new byte[1];
+
+        //データの取得と同時に、取得したデータのバイト数も得る
+        //引数は（受け皿,格納開始位置,受け取るバイト数）
+        int cnt;
+        //どれだけもらうかわからないので一時的に格納するリストを定義
+        List<byte> bytelist = new List<byte>();
+        //cntには受け取ったデータの長さが入る
+        while ((cnt = ns.Read(getData, 0, getData.Length)) > 0)
+        {
+            //データをリストに追加していく
+            bytelist.Add(getData);
         }
+
+        //リストに入った分だけ配列を定義
+        byte[] result = new byte[bytelist.Count];
+
+        for (int i = 0; i < result.Length; i++)
+        {
+            result[i] = bytelist[i];
+        }
+        //文字列にエンコード
+        string data = System.Text.Encoding.UTF8.GetString(result);
+        //データの出力
+        Console.WriteLine("受信結果:{0}", data);
 
         //閉じる
         ns.Close();

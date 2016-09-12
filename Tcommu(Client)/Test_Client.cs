@@ -1,6 +1,7 @@
 ﻿// Test_Client.cs
 
 using System;
+using System.Collections.Generic;
 
 public class Client
 {
@@ -21,8 +22,7 @@ public class Client
         int port = 2001;
 
         //TcpClientを作成し、サーバーと接続する
-        System.Net.Sockets.TcpClient tcp =
-            new System.Net.Sockets.TcpClient(ipOrHost, port);
+        System.Net.Sockets.TcpClient tcp = new System.Net.Sockets.TcpClient(ipOrHost, port);
         Console.WriteLine("サーバー({0}:{1})と接続しました({2}:{3})。",
             ((System.Net.IPEndPoint)tcp.Client.RemoteEndPoint).Address,
             ((System.Net.IPEndPoint)tcp.Client.RemoteEndPoint).Port,
@@ -71,6 +71,23 @@ public class Client
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
         Console.WriteLine(resMsg);
+
+        // List<T>クラスのインスタンス化
+        List<string> stringList = new List<string>();
+        // 要素の追加
+        stringList.Add("こんにちわ");
+        stringList.Add("さようなら");
+        string greeting;
+        greeting = stringList[0]; // キャスト不要
+        byte[] Gdata = System.Text.Encoding.UTF8.GetBytes(greeting);
+             // 各要素の列挙
+             foreach (string s in stringList)
+             {
+                 Console.WriteLine(s);
+             }
+
+        ns.Write(Gdata,0, greeting.Length);
+        Console.WriteLine(Gdata);
 
         //閉じる
         ns.Close();
