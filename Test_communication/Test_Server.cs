@@ -79,7 +79,7 @@ public class Server
         ms.Close();
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
-        Console.WriteLine(resMsg);
+        Console.WriteLine("文字受信：{0}",resMsg);
 
         //クライアントにデータを送信する
         if (!disconnected)
@@ -91,7 +91,7 @@ public class Server
             byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
             //データを送信する
             ns.Write(sendBytes, 0, sendBytes.Length);
-            Console.WriteLine(sendMsg);
+            Console.WriteLine("double送信：{0}",sendMsg);
         };
 
         //データをストリームへ取得
@@ -121,8 +121,15 @@ public class Server
         }
         //文字列にエンコード
         string data = System.Text.Encoding.UTF8.GetString(result);
-        //データの出力
-        Console.WriteLine("受信結果:{0}", data);
+        
+        //データの出力  
+        String[] Sdata = data.Split(' ');
+        Console.WriteLine("List<int>受信");
+        foreach (string stData in Sdata)
+        {
+            Console.WriteLine(stData);
+        }
+
 
         //閉じる
         ns.Close();

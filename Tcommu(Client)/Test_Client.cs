@@ -44,7 +44,7 @@ public class Client
         byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
         //データを送信する
         ns.Write(sendBytes, 0, sendBytes.Length);
-        Console.WriteLine(sendMsg);
+        Console.WriteLine("文字送信:{0}",sendMsg);
 
         //サーバーから送られたデータを受信する
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
@@ -70,7 +70,7 @@ public class Client
         ms.Close();
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
-        Console.WriteLine(resMsg);
+        Console.WriteLine("double受信:{0}",resMsg);
         //データをストリームへ取得
         System.Net.Sockets.NetworkStream stream = tcp.GetStream();
 
@@ -78,18 +78,18 @@ public class Client
         // List<T>クラスのインスタンス化
         List<string> stringList = new List<string>();
         // 要素の追加
-        stringList.Add("こんにちわ");
+        stringList.Add("こんにちは");
         stringList.Add("さようなら");
         string greeting;
-        greeting = stringList[0]; // キャスト不要
-        byte[] Gdata = System.Text.Encoding.UTF8.GetBytes(greeting);
-             // 各要素の列挙
-             foreach (string str in stringList)
-             {
-                 Console.WriteLine(str);
-             }
-        ns.Write(Gdata,0, Gdata.Length);
 
+        Console.WriteLine("List<int>送信");
+        for (int i = 0; i < stringList.Count; i++)
+        {
+            greeting = stringList[i] + " " ; // キャスト不要
+            byte[] Gdata = System.Text.Encoding.UTF8.GetBytes(greeting);
+            ns.Write(Gdata, 0, Gdata.Length);
+            Console.WriteLine(stringList[i]);
+        }
 
         //閉じる
         ns.Close();
