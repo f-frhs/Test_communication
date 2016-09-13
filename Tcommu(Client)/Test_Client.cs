@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Text;
 
 public class Client
 {
@@ -10,7 +12,7 @@ public class Client
         //サーバーに送信するデータを入力してもらう
         Console.WriteLine("文字列を入力し、Enterキーを押してください。");
         string sendMsg = Console.ReadLine();
-        //何も入力されなかった時は終了
+        //何も入力されなかった時（null or 文字数が0）は終了
         if (sendMsg == null || sendMsg.Length == 0)
         {
             return;
@@ -18,16 +20,15 @@ public class Client
 
         //サーバーのIPアドレス（または、ホスト名）とポート番号
         string ipOrHost = "127.0.0.1";
-        //string ipOrHost = "localhost";
         int port = 2001;
 
         //TcpClientを作成し、サーバーと接続する
         System.Net.Sockets.TcpClient tcp = new System.Net.Sockets.TcpClient(ipOrHost, port);
         Console.WriteLine("サーバー({0}:{1})と接続しました({2}:{3})。",
-            ((System.Net.IPEndPoint)tcp.Client.RemoteEndPoint).Address,
-            ((System.Net.IPEndPoint)tcp.Client.RemoteEndPoint).Port,
-            ((System.Net.IPEndPoint)tcp.Client.LocalEndPoint).Address,
-            ((System.Net.IPEndPoint)tcp.Client.LocalEndPoint).Port);
+            ((IPEndPoint)tcp.Client.RemoteEndPoint).Address,
+            ((IPEndPoint)tcp.Client.RemoteEndPoint).Port,
+            ((IPEndPoint)tcp.Client.LocalEndPoint).Address,
+            ((IPEndPoint)tcp.Client.LocalEndPoint).Port);
 
         //NetworkStreamを取得する
         System.Net.Sockets.NetworkStream ns = tcp.GetStream();
@@ -40,7 +41,7 @@ public class Client
 
         //サーバーにデータを送信する
         //文字列をByte型配列に変換
-        System.Text.Encoding enc = System.Text.Encoding.UTF8;
+        Encoding enc = Encoding.UTF8;
         byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
         //データを送信する
         ns.Write(sendBytes, 0, sendBytes.Length);
@@ -85,7 +86,7 @@ public class Client
         for (int i = 0; i < intList.Count; i++)
         {
             string greeting = (intList[i] + " ") ; // キャスト不要
-            byte[] Gdata = System.Text.Encoding.UTF8.GetBytes(greeting);
+            byte[] Gdata = Encoding.UTF8.GetBytes(greeting);
             ns.Write(Gdata, 0, Gdata.Length);
             Console.WriteLine(intList[i]);
         }

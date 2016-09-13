@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Text;
 
 // ---流れ---
 // TcpListenerクラスのStartメソッドによりListen（監視）を開始し、クライアントからの接続要求を待機します
@@ -19,15 +21,7 @@ public class Server
     {
         //ListenするIPアドレス
         string ipString = "127.0.0.1";
-        System.Net.IPAddress ipAdd = System.Net.IPAddress.Parse(ipString);
-
-        //ホスト名からIPアドレスを取得する時は、次のようにする
-        //string host = "localhost";
-        //System.Net.IPAddress ipAdd =
-        //    System.Net.Dns.GetHostEntry(host).AddressList[0];
-        //.NET Framework 1.1以前では、以下のようにする
-        //System.Net.IPAddress ipAdd =
-        //    System.Net.Dns.Resolve(host).AddressList[0];
+        IPAddress ipAdd = IPAddress.Parse(ipString);
 
         //Listenするポート番号
         int port = 2001;
@@ -37,23 +31,26 @@ public class Server
 
         //Listenを開始する
         listener.Start();
-        Console.WriteLine("Listenを開始しました({0}:{1})。", ((System.Net.IPEndPoint)listener.LocalEndpoint).Address,((System.Net.IPEndPoint)listener.LocalEndpoint).Port);
+        Console.WriteLine("Listenを開始しました({0}:{1})。",
+            ((IPEndPoint)listener.LocalEndpoint).Address,
+            ((IPEndPoint)listener.LocalEndpoint).Port);
 
         //接続要求があったら受け入れる
         System.Net.Sockets.TcpClient client = listener.AcceptTcpClient();
-        Console.WriteLine("クライアント({0}:{1})と接続しました。",((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Address, ((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Port);
+        Console.WriteLine("クライアント({0}:{1})と接続しました。",
+            ((IPEndPoint)client.Client.RemoteEndPoint).Address, 
+            ((IPEndPoint)client.Client.RemoteEndPoint).Port);
 
         //NetworkStreamを取得
         System.Net.Sockets.NetworkStream ns = client.GetStream();
 
         //読み取り、書き込みのタイムアウトを10秒にする
         //デフォルトはInfiniteで、タイムアウトしない
-        //(.NET Framework 2.0以上が必要)
         ns.ReadTimeout = 10000;
         ns.WriteTimeout = 10000;
 
         //クライアントから送られたデータを受信する
-        System.Text.Encoding enc = System.Text.Encoding.UTF8;
+        Encoding enc = Encoding.UTF8;
         bool disconnected = false;
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
         byte[] resBytes = new byte[256];
@@ -120,7 +117,7 @@ public class Server
             result[i] = bytelist[i];
         }
         //文字列にエンコード
-        string data = System.Text.Encoding.UTF8.GetString(result);
+        string data = Encoding.UTF8.GetString(result);
         
         //データの出力  
         string[] Sdata = data.Split(' ');
