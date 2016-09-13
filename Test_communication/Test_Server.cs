@@ -85,13 +85,13 @@ public class Server
         if (!disconnected)
         {
             //クライアントに送信する文字列を作成
- //           double dresMsg = (resMsg.Length)*1.08; 
-            string sendMsg = resMsg.Length.ToString();
+            double dresMsg = (resMsg.Length)*1.08; 
+            string sendMsg = dresMsg.ToString();
             //文字列をByte型配列に変換
             byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
             //データを送信する
             ns.Write(sendBytes, 0, sendBytes.Length);
-            Console.WriteLine("double送信：{0}",sendMsg);
+            Console.WriteLine("double送信：{0}",dresMsg);
         };
 
         //データをストリームへ取得
@@ -123,7 +123,7 @@ public class Server
         string data = System.Text.Encoding.UTF8.GetString(result);
         
         //データの出力  
-        String[] Sdata = data.Split(' ');
+        string[] Sdata = data.Split(' ');
         Console.WriteLine("List<int>受信");
         foreach (string stData in Sdata)
         {

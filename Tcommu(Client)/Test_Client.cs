@@ -69,26 +69,25 @@ public class Client
         string resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
         ms.Close();
         //末尾の\nを削除
-        resMsg = resMsg.TrimEnd('\n');
-        Console.WriteLine("double受信:{0}",resMsg);
+        double dresMsg = double.Parse(resMsg.TrimEnd('\n'));
+        Console.WriteLine("double受信:{0}",dresMsg);
         //データをストリームへ取得
         System.Net.Sockets.NetworkStream stream = tcp.GetStream();
 
 
         // List<T>クラスのインスタンス化
-        List<string> stringList = new List<string>();
+        List<int> intList = new List<int>();
         // 要素の追加
-        stringList.Add("こんにちは");
-        stringList.Add("さようなら");
-        string greeting;
+        intList.Add(1000);
+        intList.Add(2000);
 
         Console.WriteLine("List<int>送信");
-        for (int i = 0; i < stringList.Count; i++)
+        for (int i = 0; i < intList.Count; i++)
         {
-            greeting = stringList[i] + " " ; // キャスト不要
+            string greeting = (intList[i] + " ") ; // キャスト不要
             byte[] Gdata = System.Text.Encoding.UTF8.GetBytes(greeting);
             ns.Write(Gdata, 0, Gdata.Length);
-            Console.WriteLine(stringList[i]);
+            Console.WriteLine(intList[i]);
         }
 
         //閉じる
