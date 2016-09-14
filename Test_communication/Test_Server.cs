@@ -15,9 +15,12 @@ using System.Text;
 //
 // 追加: クライアントからdoubleを受信したのち、List<int>を送信
 
-public class Server
+
+
+public class Commu      //接続処理
 {
-    public static void Main()
+    //コンストラクタ
+    public Commu()                               
     {
         //ListenするIPアドレス
         string ipString = "127.0.0.1";
@@ -25,6 +28,7 @@ public class Server
 
         //Listenするポート番号
         int port = 2001;
+
 
         //TcpListenerオブジェクトを作成する
         System.Net.Sockets.TcpListener listener = new System.Net.Sockets.TcpListener(ipAdd, port);
@@ -38,7 +42,7 @@ public class Server
         //接続要求があったら受け入れる
         System.Net.Sockets.TcpClient client = listener.AcceptTcpClient();
         Console.WriteLine("クライアント({0}:{1})と接続しました。",
-            ((IPEndPoint)client.Client.RemoteEndPoint).Address, 
+            ((IPEndPoint)client.Client.RemoteEndPoint).Address,
             ((IPEndPoint)client.Client.RemoteEndPoint).Port);
 
         //NetworkStreamを取得
@@ -48,7 +52,16 @@ public class Server
         //デフォルトはInfiniteで、タイムアウトしない
         ns.ReadTimeout = 10000;
         ns.WriteTimeout = 10000;
+    }
+}
 
+
+public class Server
+{
+    //-----------------------受信処理1------------------------------------
+
+    public SResveDat1a()
+    {
         //クライアントから送られたデータを受信する
         Encoding enc = Encoding.UTF8;
         bool disconnected = false;
@@ -58,7 +71,7 @@ public class Server
         do
         {
             //データの一部を受信する
-            resSize = ns.Read(resBytes, 0, resBytes.Length);
+            resSize = Commu.ns.Read(resBytes, 0, resBytes.Length);
             //Readが0を返した時はクライアントが切断したと判断
             if (resSize == 0)
             {
@@ -76,20 +89,30 @@ public class Server
         ms.Close();
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
-        Console.WriteLine("文字受信：{0}",resMsg);
+        Console.WriteLine("文字受信：{0}", resMsg);
+    }
 
+    //-----------------------送信処理----------------------------------------
+
+    public SSendData()
+    {
         //クライアントにデータを送信する
         if (!disconnected)
         {
             //クライアントに送信する文字列を作成
-            double dresMsg = (resMsg.Length)*1.08; 
+            double dresMsg = (resMsg.Length) * 1.08;
             string sendMsg = dresMsg.ToString();
             //文字列をByte型配列に変換
             byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
             //データを送信する
             ns.Write(sendBytes, 0, sendBytes.Length);
-            Console.WriteLine("double送信：{0}",dresMsg);
+            Console.WriteLine("double送信：{0}", dresMsg);
         };
+    }
+
+    //------------------------受信処理2------------------------------------
+    public SResveData2()
+    {
 
         //データをストリームへ取得
         System.Net.Sockets.NetworkStream stream = client.GetStream();
@@ -118,7 +141,7 @@ public class Server
         }
         //文字列にエンコード
         string data = Encoding.UTF8.GetString(result);
-        
+
         //データの出力  
         string[] Sdata = data.Split(' ');
         Console.WriteLine("List<int>受信");
@@ -128,6 +151,22 @@ public class Server
         }
 
 
+        //---------------------------------------------------------------------
+
+        public static void Main()
+    {
+        var sv = new Commu(); //接続処理を回したままにしておく
+
+        if (sv.recieve_msg) //svの中身をみてsnに中身があれば受信処理1、中身がなければ最初に戻る
+        {
+            受信処理1;
+        }
+
+        送信処理             //送信処理
+
+        受信処理2　　　　　　//受信処理2
+
+        //-------------------終了処理--------------------------------------
         //閉じる
         ns.Close();
         client.Close();
@@ -136,7 +175,6 @@ public class Server
         //リスナを閉じる
         listener.Stop();
         Console.WriteLine("Listenerを閉じました。");
-
         Console.ReadLine();
     }
 }

@@ -5,19 +5,12 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-public class Client
-{
-    public static void Main()
-    {
-        //サーバーに送信するデータを入力してもらう
-        Console.WriteLine("文字列を入力し、Enterキーを押してください。");
-        string sendMsg = Console.ReadLine();
-        //何も入力されなかった時（null or 文字数が0）は終了
-        if (sendMsg == null || sendMsg.Length == 0)
-        {
-            return;
-        }
 
+//---------------接続処理----------------------------
+public class Conect
+{
+    public Conect()
+    {
         //サーバーのIPアドレス（または、ホスト名）とポート番号
         string ipOrHost = "127.0.0.1";
         int port = 2001;
@@ -38,15 +31,27 @@ public class Client
         //(.NET Framework 2.0以上が必要)
         ns.ReadTimeout = 10000;
         ns.WriteTimeout = 10000;
+    }
 
+}
+    
+public class Client
+{
+    //---------------送信処理1----------------------------
+    public SendData1()
+    {
         //サーバーにデータを送信する
         //文字列をByte型配列に変換
         Encoding enc = Encoding.UTF8;
         byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
         //データを送信する
         ns.Write(sendBytes, 0, sendBytes.Length);
-        Console.WriteLine("文字送信:{0}",sendMsg);
+        Console.WriteLine("文字送信:{0}", sendMsg);
+    }
 
+    //---------------受信処理----------------------------
+    public ResveData()
+    {
         //サーバーから送られたデータを受信する
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
         byte[] resBytes = new byte[256];
@@ -70,11 +75,14 @@ public class Client
         ms.Close();
         //末尾の\nを削除
         double dresMsg = double.Parse(resMsg.TrimEnd('\n'));
-        Console.WriteLine("double受信:{0}",dresMsg);
+        Console.WriteLine("double受信:{0}", dresMsg);
         //データをストリームへ取得
         System.Net.Sockets.NetworkStream stream = tcp.GetStream();
+    }
 
-
+    //---------------送信処理2----------------------------
+    public SendData2()
+    {
         // List<T>クラスのインスタンス化
         List<int> intList = new List<int>();
         // 要素の追加
@@ -84,17 +92,37 @@ public class Client
         Console.WriteLine("List<int>送信");
         for (int i = 0; i < intList.Count; i++)
         {
-            string greeting = (intList[i] + " ") ;
+            string greeting = (intList[i] + " ");
             byte[] Gdata = Encoding.UTF8.GetBytes(greeting);
             ns.Write(Gdata, 0, Gdata.Length);
             Console.WriteLine(intList[i]);
         }
+    }
 
+
+
+
+    public static void Main()
+    {
+        //サーバーに送信するデータを入力してもらう
+        Console.WriteLine("文字列を入力し、Enterキーを押してください。");
+        string sendMsg = Console.ReadLine();
+        //何も入力されなかった時（null or 文字数が0）は終了
+        if (sendMsg == null || sendMsg.Length == 0)
+        {
+            return;
+        }
+
+        var sv = new Commu(); //接続処理を回したままにしておく      //　接続処理
+        //　送信処理1
+        //　受信処理
+        //　送信処理2
+
+        //----------------接続終了----------------------------------
         //閉じる
         ns.Close();
         tcp.Close();
         Console.WriteLine("切断しました。");
-
         Console.ReadLine();
     }
 }
