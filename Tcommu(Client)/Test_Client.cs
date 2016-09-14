@@ -63,8 +63,7 @@ public class Client
             }
             //受信したデータを蓄積する
             ms.Write(resBytes, 0, resSize);
-            //まだ読み取れるデータがあるか、データの最後が\nでない時は、
-            // 受信を続ける
+            //まだ読み取れるデータがあるか、データの最後が\nでない時は、受信を続ける
         } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');
         //受信したデータを文字列に変換
         string resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
@@ -85,7 +84,7 @@ public class Client
         Console.WriteLine("List<int>送信");
         for (int i = 0; i < intList.Count; i++)
         {
-            string greeting = (intList[i] + " ") ; // キャスト不要
+            string greeting = (intList[i] + " ") ;
             byte[] Gdata = Encoding.UTF8.GetBytes(greeting);
             ns.Write(Gdata, 0, Gdata.Length);
             Console.WriteLine(intList[i]);
