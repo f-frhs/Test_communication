@@ -22,6 +22,8 @@ public class Server
     public System.Net.Sockets.NetworkStream ns { get; set; }
     public System.Net.Sockets.TcpClient client { get; set; }
     public Encoding enc { get; set; }
+    public bool disconnected { get; set; }
+    public string resMsg {get; set;}
 
     //-----------------------接続設定------------------------------------
     //コンストラクタ
@@ -54,9 +56,9 @@ public class Server
         ns.WriteTimeout = 10000;
     }
 
-    //-----------------------受信処理1------------------------------------
+    //-----------------------受信設定1------------------------------------
 
-    public string SResveData1(ref bool disconnected)
+    public string SResveData1()
     {
         //クライアントから送られたデータを受信する
         enc = Encoding.UTF8;
@@ -84,31 +86,26 @@ public class Server
         ms.Close();
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
+        Console.WriteLine("目印{0}",resMsg.Length);
         return resMsg;
-        //Console.WriteLine("文字受信：{0}", resMsg);
     }
 
-    //-----------------------送信処理----------------------------------------
+    //-----------------------送信設定----------------------------------------
 
     public string SSendData()
     {
-        var decide = false;
-        //クライアントにデータを送信する
-        if ((SResveData1(ref decide))
-        {
-            //クライアントに送信する文字列を作成
-            double dresmsg = (resMsg.length) * 1.08;
-            string sendmsg = dresmsg.ToString();
-            //文字列をbyte型配列に変換
-            byte[] sendbytes = enc.getbytes(sendmsg + '\n');
-            //データを送信する
-            ns.Write(sendbytes, 0, sendbytes.Length);
-            //console.writeline("double送信：{0}", dresmsg);
-            return sendmsg;
-        }
+        //クライアントに送信する文字列を作成
+        double dresmsg = 2.56; 
+        string sendmsg = dresmsg.ToString();
+        //文字列をbyte型配列に変換
+        byte[] sendbytes = enc.GetBytes(sendmsg + '\n');
+        //データを送信する
+        ns.Write(sendbytes, 0, sendbytes.Length);
+        //console.writeline("double送信：{0}", dresmsg);
+        return sendmsg;
     }
 
-    //------------------------受信処理2------------------------------------
+    //------------------------受信設定2------------------------------------
     public string SResveData2()
     {
 
@@ -140,39 +137,47 @@ public class Server
         string data = Encoding.UTF8.GetString(result);
         return data;
         //データの出力  
-        //string[] Sdata = data.Split(' ');
-        //Console.WriteLine("List<int>受信");
-        //foreach (string stData in Sdata)
-        //{
-        //    Console.WriteLine(stData);
-        //}
     }
 
+    //-------------------切断設定--------------------------------------
+    public void Close()
+    {
+        //閉じる
+        ns.Close();
+        client.Close();
+        Console.WriteLine("クライアントとの接続を閉じました。");
 
-    //---------------------------------------------------------------------
+        //リスナを閉じる
+        listener.Stop();
+        Console.WriteLine("listenerを閉じました。");
+        Console.ReadLine();
+    }
+
+    //---------------------- Main -----------------------------------------
 
     public static void Main()
     {
         //接続設定
         var sv = new Server(ipString: "127.0.0.1", port: 2001); //接続処理を回したままにしておく
 
-        //受信設定
-        var receivingMsg = sv.SResveData1();
-        Console.WriteLine("文字受信：{0}", receivingMsg);
+        //受信設定1
+        var SReceivingMsg1 = sv.SResveData1();
+        Console.WriteLine("受信：{0}", SReceivingMsg1);
 
-        //送信処理             //送信処理
+        //送信設定
+        //クライアントにデータを送信する
+        var SSendMsg = sv.SSendData();
+        Console.WriteLine("送信：{0}", SSendMsg);
 
-        //受信処理2　　　　　　//受信処理2
+        //受信設定2
+        var SReceivingMsg2 = sv.SResveData2();
+        string[] Sdata = SReceivingMsg2.Split(' ');
+        foreach (string stData in Sdata)
+        {
+            Console.WriteLine(stData);
+        }
 
-        //-------------------終了処理--------------------------------------
-        //閉じる
-        //ns.Close();
-        //client.Close();
-        //Console.WriteLine("クライアントとの接続を閉じました。");
-
-        ////リスナを閉じる
-        //listener.Stop();
-        //Console.WriteLine("Listenerを閉じました。");
-        //Console.ReadLine();
+        //切断設定
+        sv.Close();
     }
 }
