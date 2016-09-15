@@ -5,19 +5,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-// ---流れ---
-// TcpListenerクラスのStartメソッドによりListen（監視）を開始し、クライアントからの接続要求を待機します
-// 接続要求があれば、AcceptTcpClientメソッドにより、クライアントの接続要求を受け入れます
-// AcceptTcpClientメソッドで返されるTcpClientオブジェクトのGetStreamメソッドにより、NetworkStreamを取得します。データの送受信には、このNetworkStreamを使用します
-// Listenを続けるのであれば、再びAcceptTcpClientメソッドで接続を待機します。Listenを終了するのであれば、Stopメソッドを呼び出します
-//
-// 参照URL http://dobon.net/vb/dotnet/internet/tcpclientserver.html
-//
-// 追加: クライアントからdoubleを受信したのち、List<int>を送信
-
 public class Server
 {
-    //フィールド
+    //------------------------フィールド-------------------------------------------
     public System.Net.Sockets.TcpListener listener { get; set; }
     public System.Net.Sockets.NetworkStream ns { get; set; }
     public System.Net.Sockets.TcpClient client { get; set; }
@@ -52,8 +42,8 @@ public class Server
 
         //読み取り、書き込みのタイムアウトを10秒にする
         //デフォルトはInfiniteで、タイムアウトしない
-        ns.ReadTimeout = 10000;
-        ns.WriteTimeout = 10000;
+        //ns.ReadTimeout = 10000;
+        //ns.WriteTimeout = 10000;
     }
 
     //-----------------------受信設定1------------------------------------
@@ -86,7 +76,6 @@ public class Server
         ms.Close();
         //末尾の\nを削除
         resMsg = resMsg.TrimEnd('\n');
-        Console.WriteLine("目印{0}",resMsg.Length);
         return resMsg;
     }
 
@@ -140,7 +129,7 @@ public class Server
     }
 
     //-------------------切断設定--------------------------------------
-    public void Close()
+    public void SClose()
     {
         //閉じる
         ns.Close();
@@ -178,6 +167,6 @@ public class Server
         }
 
         //切断設定
-        sv.Close();
+        sv.SClose();
     }
 }

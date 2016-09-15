@@ -7,23 +7,33 @@ using System.Text;
 
 public class Client
 {
-    public static void Main()
-    {
-        //サーバーに送信するデータを入力してもらう
-        Console.WriteLine("文字列を入力し、Enterキーを押してください。");
-        string sendMsg = Console.ReadLine();
-        //何も入力されなかった時（null or 文字数が0）は終了
-        if (sendMsg == null || sendMsg.Length == 0)
-        {
-            return;
-        }
+    //------------------------フィールド-------------------------------------------
+    public System.Net.Sockets.NetworkStream ns { get; set; }
+    public System.Net.Sockets.TcpClient tcp { get; set; }
+    public string sendMsg { get; set; }
+    public Encoding enc { get; set; }
 
-        //サーバーのIPアドレス（または、ホスト名）とポート番号
-        string ipOrHost = "127.0.0.1";
-        int port = 2001;
+    //----------------------------入力設定--------------------------------------------
+    //サーバーに送信するデータを入力してもらう
+    public string Comment()
+    {
+        Console.WriteLine("文字列を入力し、Enterキーを押してください。");
+        sendMsg = Console.ReadLine();
+        //何も入力されなかった時（null or 文字数が0）は終了
+        //if (sendMsg == null || sendMsg.Length == 0)
+        //{
+        //    return sendMsg;
+        //}
+        return sendMsg;
+    }
+
+    //------------------------接続設定---------------------------------------------
+    //コンストラクタ
+    public Client(string ipOrHost, int port)
+    {
 
         //TcpClientを作成し、サーバーと接続する
-        System.Net.Sockets.TcpClient tcp = new System.Net.Sockets.TcpClient(ipOrHost, port);
+        tcp = new System.Net.Sockets.TcpClient(ipOrHost, port);
         Console.WriteLine("サーバー({0}:{1})と接続しました({2}:{3})。",
             ((IPEndPoint)tcp.Client.RemoteEndPoint).Address,
             ((IPEndPoint)tcp.Client.RemoteEndPoint).Port,
@@ -31,22 +41,31 @@ public class Client
             ((IPEndPoint)tcp.Client.LocalEndPoint).Port);
 
         //NetworkStreamを取得する
-        System.Net.Sockets.NetworkStream ns = tcp.GetStream();
+        ns = tcp.GetStream();
 
         //読み取り、書き込みのタイムアウトを10秒にする
         //デフォルトはInfiniteで、タイムアウトしない
         //(.NET Framework 2.0以上が必要)
-        ns.ReadTimeout = 10000;
-        ns.WriteTimeout = 10000;
+        //ns.ReadTimeout = 10000;
+        //ns.WriteTimeout = 10000;
+    }
 
+    //----------------------------送信設定1--------------------------------------------
+
+    public string CSendData1()
+    {
         //サーバーにデータを送信する
         //文字列をByte型配列に変換
-        Encoding enc = Encoding.UTF8;
+        enc = Encoding.UTF8;
         byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
         //データを送信する
         ns.Write(sendBytes, 0, sendBytes.Length);
-        Console.WriteLine("文字送信:{0}", sendMsg);
-
+        return sendMsg;
+    }
+   
+    //----------------------------受信設定--------------------------------------------
+    public double CResceiveData()
+    {
         //サーバーから送られたデータを受信する
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
         byte[] resBytes = new byte[256];
@@ -65,36 +84,69 @@ public class Client
             ms.Write(resBytes, 0, resSize);
             //まだ読み取れるデータがあるか、データの最後が\nでない時は、受信を続ける
         } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');
+        
         //受信したデータを文字列に変換
         string resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
         ms.Close();
+        
         //末尾の\nを削除
         double dresMsg = double.Parse(resMsg.TrimEnd('\n'));
-        Console.WriteLine("double受信:{0}", dresMsg);
+        return dresMsg;
+    }
+
+
+    //----------------------------送信設定--------------------------------------------
+    public List<int> CSendData2()
+    {
         //データをストリームへ取得
         System.Net.Sockets.NetworkStream stream = tcp.GetStream();
-
-
         // List<T>クラスのインスタンス化
         List<int> intList = new List<int>();
         // 要素の追加
         intList.Add(1000);
         intList.Add(2000);
 
-        Console.WriteLine("List<int>送信");
         for (int i = 0; i < intList.Count; i++)
         {
             string greeting = (intList[i] + " ");
             byte[] Gdata = Encoding.UTF8.GetBytes(greeting);
             ns.Write(Gdata, 0, Gdata.Length);
-            Console.WriteLine(intList[i]);
         }
+        return intList;
+    }
 
+    //----------------------------送信設定--------------------------------------------
+    public void CClose()
+    {
         //閉じる
         ns.Close();
         tcp.Close();
         Console.WriteLine("切断しました。");
-
         Console.ReadLine();
+    }
+
+    //-----------------------------Main-----------------------------------------
+    public static void Main()
+    {
+        //接続設定
+        var cv = new Client(ipOrHost: "127.0.0.1", port: 2001);
+
+        //入力設定
+        cv.Comment();
+
+        //送信設定1
+        var CSendMsg1 = cv.CSendData1();
+        Console.WriteLine("送信：{0}", CSendMsg1);
+
+        //受信設定
+        var CReceiveMsg = cv.CResceiveData();
+        Console.WriteLine("double受信:{0}", CReceiveMsg);
+
+        //送信設定2
+        var CSendMsg2 = cv.CSendData2();
+        //Console.WriteLine(CSendMsg2);
+
+        //切断設定
+        cv.CClose();
     }
 }
