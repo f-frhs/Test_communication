@@ -84,7 +84,7 @@ public class Server
     public string SSendData()
     {
         //クライアントに送信する文字列を作成
-        double dresmsg = 2.56; 
+        double dresmsg = 30.251; 
         string sendmsg = dresmsg.ToString();
         //文字列をbyte型配列に変換
         byte[] sendbytes = enc.GetBytes(sendmsg + '\n');

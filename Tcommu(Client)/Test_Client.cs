@@ -20,10 +20,10 @@ public class Client
         Console.WriteLine("文字列を入力し、Enterキーを押してください。");
         sendMsg = Console.ReadLine();
         //何も入力されなかった時（null or 文字数が0）は終了
-        //if (sendMsg == null || sendMsg.Length == 0)
-        //{
-        //    return sendMsg;
-        //}
+        if (sendMsg == null || sendMsg.Length == 0)
+        {
+            return string.Empty;
+        }
         return sendMsg;
     }
 
@@ -128,23 +128,29 @@ public class Client
     //-----------------------------Main-----------------------------------------
     public static void Main()
     {
+        //入力設定
+        Console.WriteLine("Serverを起動してEnterキーを押してください。");
+        string dummy = Console.ReadLine();
+
         //接続設定
         var cv = new Client(ipOrHost: "127.0.0.1", port: 2001);
 
         //入力設定
         cv.Comment();
+        if (cv.sendMsg != string.Empty)
+        {
+            //送信設定1
+            var CSendMsg1 = cv.CSendData1();
+            Console.WriteLine("送信：{0}", CSendMsg1);
 
-        //送信設定1
-        var CSendMsg1 = cv.CSendData1();
-        Console.WriteLine("送信：{0}", CSendMsg1);
+            //受信設定
+            var CReceiveMsg = cv.CResceiveData();
+            Console.WriteLine("double受信:{0}", CReceiveMsg);
 
-        //受信設定
-        var CReceiveMsg = cv.CResceiveData();
-        Console.WriteLine("double受信:{0}", CReceiveMsg);
-
-        //送信設定2
-        var CSendMsg2 = cv.CSendData2();
-        //Console.WriteLine(CSendMsg2);
+            //送信設定2
+            var CSendMsg2 = cv.CSendData2();
+            //Console.WriteLine(CSendMsg2);
+        }
 
         //切断設定
         cv.CClose();
