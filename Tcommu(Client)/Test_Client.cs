@@ -15,31 +15,38 @@ public class Client
 
     //------------------------接続設定---------------------------------------------
     //コンストラクタ
+
     public Client(string ipOrHost, int port)
     {
-        try
+        bool again;
+        do
         {
-            //TcpClientを作成し、サーバーと接続する
-            tcp = new System.Net.Sockets.TcpClient(ipOrHost, port);
-            Console.WriteLine("サーバー({0}:{1})と接続しました({2}:{3})。",
-                ((IPEndPoint)tcp.Client.RemoteEndPoint).Address,
-                ((IPEndPoint)tcp.Client.RemoteEndPoint).Port,
-                ((IPEndPoint)tcp.Client.LocalEndPoint).Address,
-                ((IPEndPoint)tcp.Client.LocalEndPoint).Port);
+            again = false;
+            try
+            {
+                //TcpClientを作成し、サーバーと接続する
+                tcp = new System.Net.Sockets.TcpClient(ipOrHost, port);
+                Console.WriteLine("サーバー({0}:{1})と接続しました({2}:{3})。",
+                    ((IPEndPoint)tcp.Client.RemoteEndPoint).Address,
+                    ((IPEndPoint)tcp.Client.RemoteEndPoint).Port,
+                    ((IPEndPoint)tcp.Client.LocalEndPoint).Address,
+                    ((IPEndPoint)tcp.Client.LocalEndPoint).Port);
 
-            //NetworkStreamを取得する
-            ns = tcp.GetStream();
-            //読み取り、書き込みのタイムアウトを10秒にする
-            //デフォルトはInfiniteで、タイムアウトしない
-            //(.NET Framework 2.0以上が必要)
-            ns.ReadTimeout = 10000;
-            ns.WriteTimeout = 10000;
-        }
-        catch (System.Net.Sockets.SocketException e)
-        {
-            Console.WriteLine("Connection Error");
-            return;
-        }
+                //NetworkStreamを取得する
+                ns = tcp.GetStream();
+                //読み取り、書き込みのタイムアウトを10秒にする
+                //デフォルトはInfiniteで、タイムアウトしない
+                //(.NET Framework 2.0以上が必要)
+                ns.ReadTimeout = 10000;
+                ns.WriteTimeout = 10000;
+            }
+            catch (System.Net.Sockets.SocketException e)
+            {
+                again = true;
+                Console.WriteLine("Connection Error:Serverを起動してください");
+                System.Threading.Thread.Sleep(1000);
+            }
+        } while (again);
     }
 
     //----------------------------入力設定--------------------------------------------
@@ -68,8 +75,8 @@ public class Client
         ns.Write(sendBytes, 0, sendBytes.Length);
         return sendMsg;
     }
-   
-    //----------------------------受信設定--------------------------------------------
+
+    //-----------------------------受信設定-----------------------------------------------
     public double CResceiveData()
     {
         //サーバーから送られたデータを受信する
@@ -100,7 +107,7 @@ public class Client
         return dresMsg;
     }
 
-    //----------------------------送信設定--------------------------------------------
+    //-------------------------------送信設定----------------------------------------------
     public List<int> CSendData2()
     {
         //データをストリームへ取得
@@ -120,7 +127,7 @@ public class Client
         return intList;
     }
 
-    //----------------------------送信設定--------------------------------------------
+    //----------------------------------切断設定--------------------------------------------
     public void CClose()
     {
         //閉じる
@@ -130,16 +137,11 @@ public class Client
         Console.ReadLine();
     }
 
-    //-----------------------------Main-----------------------------------------
+    //-----------------------------------Main-----------------------------------------------
     public static void Main()
     {
-        //入力設定
-        //Console.WriteLine("Serverを起動してEnterキーを押してください。");
-        //string dummy = Console.ReadLine();
-
         //接続設定
         var cv = new Client(ipOrHost: "127.0.0.1", port: 2001);
-        //if()
 
         //入力設定
         cv.Comment();
