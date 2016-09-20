@@ -14,7 +14,6 @@ public class Server
     public Encoding enc { get; set; }
     public bool disconnected { get; set; }
     public string resMsg {get; set;}
-
     //------------------------接続設定---------------------------------------------
     //コンストラクタ
     public Server(string ipString, int port)
@@ -39,15 +38,8 @@ public class Server
 
         //NetworkStreamを取得
         ns = client.GetStream();
-
-        //読み取り、書き込みのタイムアウトを10秒にする
-        //デフォルトはInfiniteで、タイムアウトしない
-        ns.ReadTimeout = 10000;
-        ns.WriteTimeout = 10000;
     }
-
-    //------------------------受信設定1---------------------------------------------
-
+    //------------------------受信設定---------------------------------------------
     public string SResveData1()
     {
         //クライアントから送られたデータを受信する
@@ -79,25 +71,8 @@ public class Server
         return resMsg;
     }
 
-    //-----------------------送信設定----------------------------------------------
-
-    public string SSendData(string remsg)
-    {
-        //クライアントに送信する文字列を作成
-        double dresmsg = (remsg.Length)*0.123456789;
-        string sendmsg = dresmsg.ToString();
-        //文字列をbyte型配列に変換
-        byte[] sendbytes = enc.GetBytes(sendmsg + '\n');
-        //データを送信する
-        ns.Write(sendbytes, 0, sendbytes.Length);
-        //console.writeline("double送信：{0}", dresmsg);
-        return sendmsg;
-    }
-
-    //------------------------受信設定2---------------------------------------------
     public string SResveData2()
     {
-
         //データをストリームへ取得
         System.Net.Sockets.NetworkStream stream = client.GetStream();
 
@@ -125,9 +100,21 @@ public class Server
         //文字列にエンコード
         string data = Encoding.UTF8.GetString(result);
         return data;
-        //データの出力  
     }
+    //-----------------------送信設定----------------------------------------------
 
+    public string SSendData(string remsg)
+    {
+        //クライアントに送信する文字列を作成
+        double dresmsg = (remsg.Length)*0.123456789;
+        string sendmsg = dresmsg.ToString();
+        //文字列をbyte型配列に変換
+        byte[] sendbytes = enc.GetBytes(sendmsg + '\n');
+        //データを送信する
+        ns.Write(sendbytes, 0, sendbytes.Length);
+        //console.writeline("double送信：{0}", dresmsg);
+        return sendmsg;
+    }
     //-------------------切断設定--------------------------------------------------
     public void SClose()
     {
@@ -141,33 +128,38 @@ public class Server
         Console.WriteLine("listenerを閉じました。");
         Console.ReadLine();
     }
-
     //---------------------- Main --------------------------------------------------
-
     public static void Main()
     {
         //接続設定
         var sv = new Server(ipString: "127.0.0.1", port: 2001); //接続処理を回したままにしておく
 
-        //受信設定1
-        var SReceivingMsg1 = sv.SResveData1();
-        Console.WriteLine("文字受信：{0}", SReceivingMsg1);
-
-        //送信設定
-        //クライアントにデータを送信する
-        var SSendMsg = sv.SSendData(SReceivingMsg1);
-        Console.WriteLine("double送信：{0}", SSendMsg);
-
-        //受信設定2
-        var SReceivingMsg2 = sv.SResveData2();
-        string[] Sdata = SReceivingMsg2.Split(' ');
-        Console.WriteLine("List<int>受信：");
-        foreach (string stData in Sdata)
+        try
         {
-            Console.WriteLine(stData);
-        }
+            //受信設定1
+            var SReceivingMsg1 = sv.SResveData1();
+            Console.WriteLine("文字受信：{0}", SReceivingMsg1);
 
-        //切断設定
-        sv.SClose();
+            //送信設定
+            //クライアントにデータを送信する
+            var SSendMsg = sv.SSendData(SReceivingMsg1);
+            Console.WriteLine("double送信：{0}", SSendMsg);
+
+            //受信設定2
+            var SReceivingMsg2 = sv.SResveData2();
+            string[] Sdata = SReceivingMsg2.Split(' ');
+            Console.WriteLine("List<int>受信：");
+            foreach (string stData in Sdata)
+            {
+                Console.WriteLine(stData);
+            }
+
+            //切断設定
+            sv.SClose();
+        }
+        catch (Exception)
+        {
+            sv.SClose();
+        }
     }
 }
