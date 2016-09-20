@@ -11,7 +11,7 @@ public class Client
     public System.Net.Sockets.NetworkStream ns { get; set; }
     public System.Net.Sockets.TcpClient tcp { get; set; }
     public string sendMsg { get; set; }
-    public Encoding enc { get; set; }
+    public Encoding douData { get; set; }
 
     //------------------------接続設定---------------------------------------------
     //コンストラクタ
@@ -62,17 +62,42 @@ public class Client
         }
         return sendMsg;
     }
+    //----------------------------リスト作成-------------------------------------------
+    public List<int> LData()
+    {
+        //データをストリームへ取得
+        System.Net.Sockets.NetworkStream stream = tcp.GetStream();
+        // List<T>クラスのインスタンス化
+        List<int> intList = new List<int>();
+        // 要素の追加
+        intList.Add(1000);
+        intList.Add(2000);
+        intList.Add(3000);
+        return intList;
+    }
 
     //----------------------------送信設定1--------------------------------------------
 
-    public string CSendData1()
+    public string CSendData(string sdata)
     {
         //サーバーにデータを送信する
         //文字列をByte型配列に変換
-        enc = Encoding.UTF8;
-        byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
+        douData = Encoding.UTF8;
+        byte[] sendBytes = douData.GetBytes(sendMsg + '\n');
         //データを送信する
         ns.Write(sendBytes, 0, sendBytes.Length);
+        return sendMsg;
+    }
+
+    public List<int> CSendData(List<int> sendMsg)
+    {
+         for (int i = 0; i < sendMsg.Count; i++)
+        {
+            string strData = (sendMsg[i] + " ");
+            byte[] Gdata = Encoding.UTF8.GetBytes(strData);
+            ns.Write(Gdata, 0, Gdata.Length);
+            Console.WriteLine(strData);
+        }
         return sendMsg;
     }
 
@@ -99,7 +124,7 @@ public class Client
         } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');
         
         //受信したデータを文字列に変換
-        string resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
+        string resMsg = douData.GetString(ms.GetBuffer(), 0, (int)ms.Length);
         ms.Close();
         
         //末尾の\nを削除
@@ -107,27 +132,7 @@ public class Client
         return dresMsg;
     }
 
-    //-------------------------------送信設定----------------------------------------------
-    public List<int> CSendData2()
-    {
-        //データをストリームへ取得
-        System.Net.Sockets.NetworkStream stream = tcp.GetStream();
-        // List<T>クラスのインスタンス化
-        List<int> intList = new List<int>();
-        // 要素の追加
-        intList.Add(1000);
-        intList.Add(2000);
-
-        for (int i = 0; i < intList.Count; i++)
-        {
-            string greeting = (intList[i] + " ");
-            byte[] Gdata = Encoding.UTF8.GetBytes(greeting);
-            ns.Write(Gdata, 0, Gdata.Length);
-        }
-        return intList;
-    }
-
-    //----------------------------------切断設定--------------------------------------------
+     //----------------------------------切断設定--------------------------------------------
     public void CClose()
     {
         //閉じる
@@ -144,23 +149,26 @@ public class Client
         var cv = new Client(ipOrHost: "127.0.0.1", port: 2001);
 
         //入力設定
-        cv.Comment();
+        var Response = cv.Comment();
+        Console.WriteLine();
         if (cv.sendMsg != string.Empty)
         {
             //送信設定1
-            var CSendMsg1 = cv.CSendData1();
-            Console.WriteLine("送信：{0}", CSendMsg1);
+            var CSendMsg1 = cv.CSendData(Response);
+            Console.WriteLine("文字送信：{0}", CSendMsg1);
 
             //受信設定
             var CReceiveMsg = cv.CResceiveData();
             Console.WriteLine("double受信:{0}", CReceiveMsg);
 
             //送信設定2
-            var CSendMsg2 = cv.CSendData2();
-            //Console.WriteLine(CSendMsg2);
+            var SLData = cv.LData();
+            Console.WriteLine("List<int>送信：");
+            var CSendMsg2 = cv.CSendData(SLData);
         }
 
         //切断設定
+        Console.WriteLine();
         cv.CClose();
     }
 }

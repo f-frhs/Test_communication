@@ -42,8 +42,8 @@ public class Server
 
         //読み取り、書き込みのタイムアウトを10秒にする
         //デフォルトはInfiniteで、タイムアウトしない
-        //ns.ReadTimeout = 10000;
-        //ns.WriteTimeout = 10000;
+        ns.ReadTimeout = 10000;
+        ns.WriteTimeout = 10000;
     }
 
     //------------------------受信設定1---------------------------------------------
@@ -84,7 +84,7 @@ public class Server
     public string SSendData(string remsg)
     {
         //クライアントに送信する文字列を作成
-        double dresmsg = (remsg.Length)*1.08;
+        double dresmsg = (remsg.Length)*0.123456789;
         string sendmsg = dresmsg.ToString();
         //文字列をbyte型配列に変換
         byte[] sendbytes = enc.GetBytes(sendmsg + '\n');
@@ -151,16 +151,17 @@ public class Server
 
         //受信設定1
         var SReceivingMsg1 = sv.SResveData1();
-        Console.WriteLine("受信：{0}", SReceivingMsg1);
+        Console.WriteLine("文字受信：{0}", SReceivingMsg1);
 
         //送信設定
         //クライアントにデータを送信する
         var SSendMsg = sv.SSendData(SReceivingMsg1);
-        Console.WriteLine("送信：{0}", SSendMsg);
+        Console.WriteLine("double送信：{0}", SSendMsg);
 
         //受信設定2
         var SReceivingMsg2 = sv.SResveData2();
         string[] Sdata = SReceivingMsg2.Split(' ');
+        Console.WriteLine("List<int>受信：");
         foreach (string stData in Sdata)
         {
             Console.WriteLine(stData);
