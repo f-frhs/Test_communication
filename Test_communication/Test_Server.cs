@@ -81,10 +81,10 @@ public class Server
 
     //-----------------------送信設定----------------------------------------------
 
-    public string SSendData()
+    public string SSendData(string remsg)
     {
         //クライアントに送信する文字列を作成
-        double dresmsg = 30.251; 
+        double dresmsg = (remsg.Length)*1.08;
         string sendmsg = dresmsg.ToString();
         //文字列をbyte型配列に変換
         byte[] sendbytes = enc.GetBytes(sendmsg + '\n');
@@ -155,7 +155,7 @@ public class Server
 
         //送信設定
         //クライアントにデータを送信する
-        var SSendMsg = sv.SSendData();
+        var SSendMsg = sv.SSendData(SReceivingMsg1);
         Console.WriteLine("送信：{0}", SSendMsg);
 
         //受信設定2
