@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -43,48 +44,61 @@ namespace ServerSys
             ns = client.GetStream();
         }
 
-        //受信設定：文字
-        public string SResveData1()
+        //受信string：Byteを受信しstringに変換
+        public string SresveStr()
         {
             //クライアントから送られたデータを受信する
             enc = Encoding.UTF8;
             disconnected = false;
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
-            byte[] resBytes = new byte[256];
-            int resSize = 0;
+            byte[] SresBytes = new byte[256];
+            int SresSize = 0;
             do
             {
                 //データの一部を受信する
-                resSize = ns.Read(resBytes, 0, resBytes.Length);
+                SresSize = ns.Read(SresBytes, 0, SresBytes.Length);
 
                 //Readが0を返した時はクライアントが切断したと判断
-                if (resSize == 0)
+                if (SresSize == 0)
                 {
                     disconnected = true;
                     Console.WriteLine("クライアントが切断しました。");
                     break;
                 }
+
                 //受信したデータを蓄積する
-                ms.Write(resBytes, 0, resSize);
-            } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');                //まだ読み取れるデータがあるか、データの最後が\nでない時は、受信を続ける
+                ms.Write(SresBytes, 0, SresSize);
+            } while (ns.DataAvailable || SresBytes[SresSize - 1] != '\n');                //まだ読み取れるデータがあるか、データの最後が\nでない時は、受信を続ける
 
             //受信したデータ(Byte)をList<int>に変換
-            string resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
+            string SresMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
 
             ms.Close();
 
             //末尾の\nを削除
-            resMsg = resMsg.TrimEnd('\n');
-            //List<int> SintList = new List<int>();
-            //for (int i = 0; i<)
-            return resMsg;
+            SresMsg = SresMsg.TrimEnd('\n');
+            return SresMsg;
         }
 
-        //受信設定：List
-        public List<int> SResveData2()
+        //送信double：doubleをstringに変換後、Byteに変換し送信
+        public byte[] SsendDou(string remsg)
+        {
+            //クライアントに送信するdoubleを作成後送信のためstringに変換
+            double SsendDou = (remsg.Length) * 0.1234;
+            string SsendStr = SsendDou.ToString();
+            //文字列をbyte型配列に変換
+            byte[] SsenByte = enc.GetBytes(SsendStr + '\n');
+            //データを送信する
+            ns.Write(SsenByte, 0, SsenByte.Length);
+
+            return SsenByte;
+        }
+
+        //受信List：Byteを受信しList<int>に変換
+        public List<int> SresList() 
         {
             //データをストリームへ取得
-            System.Net.Sockets.NetworkStream stream = client.GetStream();
+            System.Net.Sockets.NetworkStream Sstream = client.GetStream();
 
             //データを受け取るbyte型変数を定義（例では１バイトずつ受け取る）
             byte[] getData = new byte[1];
@@ -96,45 +110,32 @@ namespace ServerSys
             List<byte> bytelist = new List<byte>();
 
             //cntには受け取ったデータの長さが入る
-            while ((cnt = stream.Read(getData, 0, getData.Length)) > 0)
+            while ((cnt = Sstream.Read(getData, 0, getData.Length)) > 0)
             {
                 //データをリストに追加していく
                 bytelist.Add(getData[0]);
             }
 
             //リストに入った分だけ配列を定義
-            byte[] result = new byte[bytelist.Count];
+            byte[] SresListByte = new byte[bytelist.Count];
 
-            for (int i = 0; i < result.Length; i++)
+            for (int i = 0; i < SresListByte.Length; i++)
             {
-                result[i] = bytelist[i];
+                SresListByte[i] = bytelist[i];
             }
 
-            ////文字列にエンコード
-            //string data = Encoding.UTF8.GetString(result);
+            //文字列にエンコード
+            string SresListStr = Encoding.UTF8.GetString(SresListByte);
+            int[] SresListInt = SresListStr.Select(s => int.Parse(s)).ToArray();
 
-            List<int> data = result.ConvertAll(x => int.Parse(x));
+            List<int> SresList = new List<int>();
+            SresList.AddRange(SresListInt);
 
-            return data;
-        }
-
-        //送信設定：double
-
-        public string SSendData(string remsg)
-        {
-            //クライアントに送信する文字列を作成
-            double dresmsg = (remsg.Length) * 0.123456789;
-            string sendmsg = dresmsg.ToString();
-            //文字列をbyte型配列に変換
-            byte[] sendbytes = enc.GetBytes(sendmsg + '\n');
-            //データを送信する
-            ns.Write(sendbytes, 0, sendbytes.Length);
-
-            return sendmsg;
+            return SresList;
         }
 
         //切断設定
-        public void SClose()
+        public void Sclose()
         {
             //閉じる
             ns.Close();
@@ -159,31 +160,31 @@ namespace ServerSys
 
             try
             {
-                //受信設定
-                var SReceivingMsg1 = sv.SResveData1();
+                //受信string
+                var SReceivingMsg1 = sv.SresveStr();
                 Console.WriteLine("文字受信：{0}", SReceivingMsg1);
 
-                //送信設定
+                //送信double
                 //クライアントにデータを送信する
-                var SSendMsg = sv.SSendData(SReceivingMsg1);
+                var SSendMsg = sv.SsendDou(SReceivingMsg1);
                 Console.WriteLine("double送信：{0}", SSendMsg);
 
-                //受信設定
-                var SReceivingMsg2 = sv.SResveData2();
+                //受信List
+                var SrecList = sv.SresList();
                 //string[] Sdata = SReceivingMsg2.Split(' ');
-                Console.WriteLine("List<int>受信：{0}",SReceivingMsg2);
+                Console.WriteLine("List<int>受信：{0}",SrecList);
                 //foreach (List<int> stData in SReceivingMsg2)
                 //{
                 //    Console.WriteLine(stData);
                 //}
 
                 //切断設定
-                sv.SClose();
+                sv.Sclose();
             }
 
             catch (Exception)
             {
-                sv.SClose();
+                sv.Sclose();
             }
         }
     }

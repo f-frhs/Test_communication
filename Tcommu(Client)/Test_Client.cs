@@ -11,15 +11,16 @@ public class Client
     //フィールド
     public NetworkStream ns { get; set; }
     public TcpClient tcp { get; set; }
-    public string sendMsg { get; set; }
-    public Encoding douData { get; set; }
+    public string sendStr { get; set; }
+    public Encoding enco { get; set; }
     public string cv{get; set;}
+    public byte[] CsendListByte{get; set; }
 
     //接続設定:サーバと接続できるまで繰り返す
     //コンストラクタ
     //接続設定
-    //var cv = new Client(ipOrHost: "127.0.0.1", port: 2001);
-    public Client()
+    //--//public Client()
+    public Client(string ipOrHost, int port)
     {
         bool again;
         do
@@ -28,7 +29,9 @@ public class Client
             try
             {
                 //TcpClientを作成し、サーバーと接続する
-                tcp = new TcpClient("127.0.0.1",2001);
+                //--//tcp = new TcpClient("127.0.0.1",2001);
+                tcp = new TcpClient(ipOrHost, port);
+
                 Console.WriteLine("サーバー({0}:{1})と接続しました({2}:{3})。",
                     ((IPEndPoint)tcp.Client.RemoteEndPoint).Address,
                     ((IPEndPoint)tcp.Client.RemoteEndPoint).Port,
@@ -44,87 +47,90 @@ public class Client
                 System.Threading.Thread.Sleep(1000);
             }
         } while (again);
-        var cv = new Client();
+        //var cv = new Client();
     }
 
     //入力：任意の文字列を入力stringを出力
     public string Comment()
     {
         Console.WriteLine("文字列を入力し、Enterキーを押してください。");
-        sendMsg = Console.ReadLine();
+        sendStr = Console.ReadLine();
+
         //何も入力されなかった時（null or 文字数が0）は終了
-        if (sendMsg == null || sendMsg.Length == 0)
+        if (sendStr == null || sendStr.Length == 0)
         {
             return string.Empty;
         }
 
-        return sendMsg;
+        return sendStr;
     }
 
-    //送信：stringをByteに変換し送信 
-    public string CSendData(string sdata)
+    //送信string：stringをByteに変換し送信 
+    public byte[] CsendStr(string sData)
     {
         //文字列をByte型配列に変換
-        douData = Encoding.UTF8;
-        byte[] sendBytes = douData.GetBytes(sendMsg + '\n');
+        enco = Encoding.UTF8;
+        byte[] CsendBytes = enco.GetBytes(sendStr + '\n');
 
         //データを送信
-        ns.Write(sendBytes, 0, sendBytes.Length);
+        ns.Write(CsendBytes, 0, CsendBytes.Length);
 
-        return sendMsg;
+        return CsendBytes;
     }
 
-    //送信：List<int> をByteに変換し送信 
-    public List<int> CSendData(List<int> sendMsg)
-    {
-        for (int i = 0; i < sendMsg.Count; i++)
-        {
-            string strData = (sendMsg[i] + " ");
-            byte[] Gdata = Encoding.UTF8.GetBytes(strData);
-            ns.Write(Gdata, 0, Gdata.Length);
-            Console.WriteLine(strData);
-        }
-
-        return sendMsg;
-    }
-
-    //受信：double
-    public double CResceiveData()
+    //受信double：Byteを受信しdoubleに変換
+    public double CresceiveData()
     {
         //サーバーから送られたデータを受信する
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
-        byte[] resBytes = new byte[256];
-        int resSize = 0;
+        byte[] CresByte = new byte[256];
+        int CresSize = 0;
         do
         {
             //データの一部を受信する
-            resSize = ns.Read(resBytes, 0, resBytes.Length);
+            CresSize = ns.Read(CresByte, 0, CresByte.Length);
 
             //Readが0を返した時はサーバーが切断したと判断
-            if (resSize == 0)
+            if (CresSize == 0)
             {
                 Console.WriteLine("サーバーが切断しました。");
                 break;
             }
 
             //受信したデータを蓄積する
-            ms.Write(resBytes, 0, resSize);
-        } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');           //まだ読み取れるデータがあるか、データの最後が\nでない時は、受信を続ける
+            ms.Write(CresByte, 0, CresSize);
+        } while (ns.DataAvailable || CresByte[CresSize - 1] != '\n');           //まだ読み取れるデータがあるか、データの最後が\nでない時は、受信を続ける
 
-        //受信したデータを文字列に変換
-        string resMsg = douData.GetString(ms.GetBuffer(), 0, (int)ms.Length);
+        //受信したデータをstringに変換
+        string CresStr = enco.GetString(ms.GetBuffer(), 0, (int)ms.Length);
         ms.Close();
 
-        //末尾の\nを削除
-        double dresMsg = double.Parse(resMsg.TrimEnd('\n'));
+        //末尾の\nを削除doubleに変換
+        double CresDou = double.Parse(CresStr.TrimEnd('\n'));
 
-        return dresMsg;
+        return CresDou;
+    }
+
+    //送信List：List<int> をByteに変換し送信 
+    public byte[] CsendList(List<int> sendList)
+    {
+        for (int i = 0; i < sendList.Count; i++)
+        {
+            //stringをByte型配列に変換
+            string strList = (sendList[i] + " ");
+            byte[] CsendListByte = enco.GetBytes(strList);
+
+            //データ送信
+            ns.Write(CsendListByte, 0, CsendListByte.Length);
+            Console.WriteLine(strList);
+        }
+
+        return CsendListByte;
     }
 
     //切断設定
-    public void CClose()
+    public void Cclose()
     {
-        //閉じる
         ns.Close();
         tcp.Close();
         Console.WriteLine("切断しました。");
@@ -137,29 +143,30 @@ class ClientMain
     //Main
     public static void Main()
     {
-        Client cv;
-        
+        //Client cv;
+        var cv = new Client(ipOrHost: "127.0.0.1", port: 2001);
+
         //入力設定
         var CComent = cv.Comment();
         Console.WriteLine();
-        if (cv.sendMsg != string.Empty)
+        if (cv.sendStr != string.Empty)
         {
-            //送信設定1
-            var CSendMsg1 = cv.CSendData(CComent);
+            //送信string
+            var CSendMsg1 = cv.CsendStr(CComent);
             Console.WriteLine("文字送信：{0}", CSendMsg1);
 
-            //受信設定
-            var CReceiveMsg = cv.CResceiveData();
+            //受信double
+            var CReceiveMsg = cv.CresceiveData();
             Console.WriteLine("double受信:{0}", CReceiveMsg);
 
-            //送信設定2
-            var SLData = new List<int>() { 1, 2, 3, 4, 5 };
+            //送信List
+            var SsendList = new List<int>() { 1, 2, 3, 4, 5 };
             Console.WriteLine("List<int>送信：");
-            var CSendMsg2 = cv.CSendData(SLData);
+            var CSendMsg2 = cv.CsendList(SsendList);
         }
 
         //切断設定
         Console.WriteLine();
-        cv.CClose();
+        cv.Cclose();
     }
 }
