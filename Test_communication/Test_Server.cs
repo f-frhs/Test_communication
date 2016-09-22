@@ -95,7 +95,7 @@ namespace ServerSys
         }
 
         //受信List：Byteを受信しList<int>に変換
-        public string[] SresList() 
+        public List<int> SresList() 
         {
             //データをストリームへ取得
             System.Net.Sockets.NetworkStream Sstream = client.GetStream();
@@ -126,9 +126,19 @@ namespace ServerSys
 
             //文字列にエンコード
             string SresStr = Encoding.UTF8.GetString(SresListByte);
-            string[] SresStrArr = SresStr.Split(' ');
+            string SresStrNs = SresStr.TrimEnd();     //末尾の\nを除く
+            string[] SresStrArr = SresStrNs.Split(' ');
 
-            return SresStrArr;
+            //string型配列→int型配列
+            int[] SresIntArr = new int[SresStrArr.Length];
+            for(int i = 0; i < SresIntArr.Length; i++)
+            {
+                SresIntArr[i] = int.Parse(SresStrArr[i]);
+            }
+
+            //int型配列→List<int>
+            List<int> SresIntList = new List<int>(SresIntArr);
+            return SresIntList;
         }
 
         //切断設定
@@ -167,10 +177,10 @@ namespace ServerSys
                 Console.WriteLine("double送信：{0}", SSendMsg);
 
                 //受信List
-                var SrecStr = sv.SresList();
-
+                var SrecInt = sv.SresList();
+                //Console.WriteLine(SrecInt);
                 //Console.WriteLine("List<int>受信：{0}",SrecList);
-                foreach (string stData in SrecStr)
+                foreach (int stData in SrecInt)
                 {
                     Console.WriteLine(stData);
                 }
