@@ -5,28 +5,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Net.Sockets;
 
 namespace ServerSys
 {
     public class Server
     {
         //フィールド
-        public System.Net.Sockets.TcpListener listener { get; set; }
-        public System.Net.Sockets.NetworkStream ns { get; set; }
-        public System.Net.Sockets.TcpClient client { get; set; }
+        public TcpListener listener { get; set; }
+        public static NetworkStream ns { get; set; }
+        public static TcpClient client { get; set; }
         public Encoding enc { get; set; }
         public bool disconnected { get; set; }
         public string resMsg { get; set; }
-
+       
         //接続設定
         //コンストラクタ
-        public Server(string ipString, int port)
+        //public Server(string ipString, int port)
+        static public void startServer()
         {
+            //var sv = new Server(ipString: "127.0.0.1", port: 2001); //接続処理を回したままにしておく
             //ListenするIPアドレス
-            IPAddress ipAdd = IPAddress.Parse(ipString);
+            IPAddress ipAdd = IPAddress.Parse("127.0.0.1");
 
             //TcpListenerオブジェクトを作成する
-            listener = new System.Net.Sockets.TcpListener(ipAdd, port);
+            TcpListener listener = new TcpListener(ipAdd, 2001);
 
             //Listenを開始する
             listener.Start();
@@ -45,7 +48,7 @@ namespace ServerSys
         }
 
         //受信string：Byteを受信しstringに変換
-        public string SresveStr()
+        public string SresStr()
         {
             //クライアントから送られたデータを受信する
             enc = Encoding.UTF8;
@@ -98,7 +101,7 @@ namespace ServerSys
         public List<int> SresList() 
         {
             //データをストリームへ取得
-            System.Net.Sockets.NetworkStream Sstream = client.GetStream();
+            NetworkStream Sstream = client.GetStream();
 
             //データを受け取るbyte型変数を定義（例では１バイトずつ受け取る）
             byte[] getData = new byte[1];
@@ -118,7 +121,6 @@ namespace ServerSys
 
             //リストに入った分だけ配列を定義
             byte[] SresListByte = new byte[byteList.Count];
-
             for (int i = 0; i < SresListByte.Length; i++)
             {
                 SresListByte[i] = byteList[i];
@@ -158,41 +160,41 @@ namespace ServerSys
 
     class ServerMain
     {
+        //private Server sv { get; set; }
         //Main
         public static void Main()
         {
+            Server.startServer();
+            
+            //var sv = new Server();
             //接続設定
-            var sv = new Server(ipString: "127.0.0.1", port: 2001); //接続処理を回したままにしておく
             Console.WriteLine();
 
-            try
-            {
-                //受信string
-                var SReceivingMsg1 = sv.SresveStr();
-                Console.WriteLine("文字受信：{0}", SReceivingMsg1);
+            //try
+            //{
+            //    //受信string
+            //    var SrecMsg1 = sv.SresStr();
+            //    Console.WriteLine("文字受信：{0}", SrecMsg1);
 
-                //送信double
-                //クライアントにデータを送信する
-                var SSendMsg = sv.SsendDou(SReceivingMsg1);
-                Console.WriteLine("double送信：{0}", SSendMsg);
+            //    //送信double
+            //    var SSendMsg = sv.SsendDou(SrecMsg1);
+            //    Console.WriteLine("double送信：{0}", SSendMsg);
 
-                //受信List
-                var SrecInt = sv.SresList();
-                //Console.WriteLine(SrecInt);
-                //Console.WriteLine("List<int>受信：{0}",SrecList);
-                foreach (int stData in SrecInt)
-                {
-                    Console.WriteLine(stData);
-                }
+            //    //受信List
+            //    var SrecInt = sv.SresList();
+            //    foreach (int stData in SrecInt)
+            //    {
+            //        Console.WriteLine(stData);
+            //    }
 
-                //切断設定
-                sv.Sclose();
-            }
+            //    //切断設定
+            //    sv.Sclose();
+            //}
 
-            catch (Exception)
-            {
-                sv.Sclose();
-            }
+            //catch (Exception)
+            //{
+            //    sv.Sclose();
+            //}
         }
     }
 }
