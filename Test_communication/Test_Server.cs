@@ -95,7 +95,7 @@ namespace ServerSys
         }
 
         //受信List：Byteを受信しList<int>に変換
-        public List<int> SresList() 
+        public string[] SresList() 
         {
             //データをストリームへ取得
             System.Net.Sockets.NetworkStream Sstream = client.GetStream();
@@ -107,31 +107,28 @@ namespace ServerSys
             int cnt;
 
             //どれだけもらうかわからないので一時的に格納するリストを定義
-            List<byte> bytelist = new List<byte>();
+            List<byte> byteList = new List<byte>();
 
             //cntには受け取ったデータの長さが入る
             while ((cnt = Sstream.Read(getData, 0, getData.Length)) > 0)
             {
                 //データをリストに追加していく
-                bytelist.Add(getData[0]);
+                byteList.Add(getData[0]);
             }
 
             //リストに入った分だけ配列を定義
-            byte[] SresListByte = new byte[bytelist.Count];
+            byte[] SresListByte = new byte[byteList.Count];
 
             for (int i = 0; i < SresListByte.Length; i++)
             {
-                SresListByte[i] = bytelist[i];
+                SresListByte[i] = byteList[i];
             }
 
             //文字列にエンコード
-            string SresListStr = Encoding.UTF8.GetString(SresListByte);
-            int[] SresListInt = SresListStr.Select(s => int.Parse(s)).ToArray();
+            string SresStr = Encoding.UTF8.GetString(SresListByte);
+            string[] SresStrArr = SresStr.Split(' ');
 
-            List<int> SresList = new List<int>();
-            SresList.AddRange(SresListInt);
-
-            return SresList;
+            return SresStrArr;
         }
 
         //切断設定
@@ -170,13 +167,13 @@ namespace ServerSys
                 Console.WriteLine("double送信：{0}", SSendMsg);
 
                 //受信List
-                var SrecList = sv.SresList();
-                //string[] Sdata = SReceivingMsg2.Split(' ');
-                Console.WriteLine("List<int>受信：{0}",SrecList);
-                //foreach (List<int> stData in SReceivingMsg2)
-                //{
-                //    Console.WriteLine(stData);
-                //}
+                var SrecStr = sv.SresList();
+
+                //Console.WriteLine("List<int>受信：{0}",SrecList);
+                foreach (string stData in SrecStr)
+                {
+                    Console.WriteLine(stData);
+                }
 
                 //切断設定
                 sv.Sclose();
